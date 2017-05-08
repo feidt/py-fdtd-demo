@@ -1,7 +1,7 @@
 # py-fdtd-demo
 This is a short demonstration on how to use PyOpenGL for 2D FDTD simulations
 
-![py-fdtd-screenshot](screenshot.png)
+<img src="screenshot.png" alt="" width="200">
 
 ## Requirements
 + OpenGL
