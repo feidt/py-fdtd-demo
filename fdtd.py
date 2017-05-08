@@ -79,7 +79,7 @@ class Colormap(object):
 		                       127, 0, 0,
 		                       255, 255, 255])
 
-	def init(self):	
+	def init(self):
 		for c in range(9):
 			for i in range(25):
 				weight_c0 = (25.0 - i)/25.0
@@ -96,6 +96,7 @@ class Simulation(object):
 		self.time = 0.
 		self.grid = Grid(70)
 		self.colormap = Colormap()
+		self.render_3d = False
 
 	def init(self,width, height):
 	    glClearColor(1.0, 1.0, 1.0, 0.0)
@@ -117,7 +118,7 @@ class Simulation(object):
 	    glViewport(0, 0, width, height)
 	    glMatrixMode(GL_PROJECTION)
 	    glLoadIdentity()
-	    gluPerspective(45.0, float(width)/float(height), 0.1, 100.0)
+	    gluPerspective(45.0, float(width)/float(height), 0.1, 150.0)
 	    glMatrixMode(GL_MODELVIEW)
 
 
@@ -142,7 +143,13 @@ class Simulation(object):
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 		glLoadIdentity()
-		glTranslatef(-self.grid.width/2.,-self.grid.height/2.,-99.0)
+
+
+		if self.render_3d == True:
+			glTranslatef(-self.grid.width/2.,-self.grid.height/10.,-120.0)
+			glRotatef(100,1,0,0)
+		else:
+			glTranslatef(-self.grid.width/2.,-self.grid.height/2.,-100.0)
 
 		# run thru the grid and plot the Ez
 		for x in range(self.grid.width):
@@ -157,22 +164,73 @@ class Simulation(object):
 					green = 255.
 					blue = 255.
 
+				sc_int = -intensity/40.
 				# draw a rectangle for every field value
-				glBegin(GL_QUADS);
-				glColor3f(red/255.,green/255.,blue/255.)
-				glVertex3f(scale_factor*x,scale_factor*y,-1)
-				glVertex3f(scale_factor*x,scale_factor*(y-ph),-1)
-				glVertex3f(scale_factor*(x+pw),scale_factor*(y-ph),-1)
-				glVertex3f(scale_factor*(x+pw),scale_factor*y,-1)
-				glEnd()
+
+				if self.render_3d == True:
+
+					# top
+					glBegin(GL_QUADS);
+					glColor3f(red/255.,green/255.,blue/255.)
+					glVertex3f(scale_factor*x,scale_factor*y,-1+sc_int)
+					glVertex3f(scale_factor*x,scale_factor*(y-ph),-1+sc_int)
+					glVertex3f(scale_factor*(x+pw),scale_factor*(y-ph),-1+sc_int)
+					glVertex3f(scale_factor*(x+pw),scale_factor*y,-1+sc_int)
+					glEnd()
+
+					# bottom
+					glBegin(GL_QUADS);
+					glColor3f(red/255.,green/255.,blue/255.)
+					glVertex3f(scale_factor*x,scale_factor*y,-1)
+					glVertex3f(scale_factor*x,scale_factor*(y-ph),-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*(y-ph),-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*y,-1)
+					glEnd()
+
+
+					# back
+					glBegin(GL_QUADS);
+					glColor3f(red/255.,green/255.,blue/255.)
+					glVertex3f(scale_factor*x,scale_factor*y,-1+sc_int)
+					glVertex3f(scale_factor*x,scale_factor*y,-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*y,-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*y,-1+sc_int)
+					glEnd()
+
+					# front
+					glBegin(GL_QUADS);
+					glColor3f(red/255.,green/255.,blue/255.)
+					glVertex3f(scale_factor*x,scale_factor*(y-ph),-1+sc_int)
+					glVertex3f(scale_factor*x,scale_factor*(y-ph),-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*(y-ph),-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*(y-ph),-1+sc_int)
+					glEnd()
+
+				else:
+					# bottom
+					glBegin(GL_QUADS);
+					glColor3f(red/255.,green/255.,blue/255.)
+					glVertex3f(scale_factor*x,scale_factor*y,-1)
+					glVertex3f(scale_factor*x,scale_factor*(y-ph),-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*(y-ph),-1)
+					glVertex3f(scale_factor*(x+pw),scale_factor*y,-1)
+					glEnd()
 
 		# update the grid with the new time value
 		self.grid.update(self.time)
 		glutSwapBuffers()
 
 	def keyHandler(self, key, x, y):
-	    if key.decode("utf-8") == chr(27):
-		    sys.exit(0)
+		dkey = key.decode("utf-8")
+		if dkey == chr(27):
+			sys.exit(0)
+		elif dkey == chr(32):
+			if self.render_3d == False:
+				self.render_3d = True
+			else:
+				self.render_3d = False
+
+
 
 	def main(self):
 		"""
@@ -185,7 +243,7 @@ class Simulation(object):
 		self.colormap.init()
 
 		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-		glutInitWindowSize(800, 600)
+		glutInitWindowSize(1000, 600)
 		glutInitWindowPosition(0, 0)
 		window = glutCreateWindow("PyOpenGL FDTD Simulation")
 		glutDisplayFunc(self.render)
