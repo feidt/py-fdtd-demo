@@ -14,3 +14,7 @@ sudo pip install pyopengl pyopengl_accelerate
 ## Run
 open a terminal and run
 `python fdtd.py`
+
+## Keyboard Controls
+ESC: exit
+space: switch between 2D and 3D projection
