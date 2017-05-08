@@ -243,7 +243,7 @@ class Simulation(object):
 		self.colormap.init()
 
 		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-		glutInitWindowSize(1000, 600)
+		glutInitWindowSize(680, 400)
 		glutInitWindowPosition(0, 0)
 		window = glutCreateWindow("PyOpenGL FDTD Simulation")
 		glutDisplayFunc(self.render)
